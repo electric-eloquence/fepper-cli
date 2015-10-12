@@ -1,5 +1,5 @@
 {
-  "name": "Fepper CLI",
+  "name": "fepper-cli",
   "description": "The Fepper command line interface",
   "version": "0.0.0",
   "repository": {
