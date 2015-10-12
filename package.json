@@ -1,0 +1,20 @@
+{
+  "name": "Fepper CLI",
+  "description": "The Fepper command line interface",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/electric-eloquence/fepper-cli.git"
+  },
+  "dependencies": {
+    "findup-sync": "^0.3.0",
+    "nopt": "^3.0.4"
+  },
+  "license": "MIT",
+  "bin": {
+    "fepper": "bin/fepper.js"
+  },
+  "engines": {
+    "node": ">= 4.0.0"
+  }
+}

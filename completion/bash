@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# fepper-cli
+#
+# Based off of grunt-cli, http://gruntjs.com/
+# Copyright (c) 2012 Tyler Kellen, contributors
+# Licensed under the MIT license.
+# https://github.com/gruntjs/grunt/blob/master/LICENSE-MIT
+
+# Usage:
+#
+# To enable bash <tab> completion for Fepper, add the following line (minus the
+# leading #, which is the bash comment character) to your ~/.bashrc file:
+#
+# eval "$(fepper --completion=bash)"
+
+# Search the current directory and all parent directories for a Fepper executable.
+function _fepper_fepperfile() {
+  local curpath="$PWD"
+  while [[ "$curpath" ]]; do
+    for fepperfile in "$curpath/"fepper.command; do
+      if [[ -e "$fepperfile" ]]; then
+        echo "$fepperfile"
+        return
+      fi
+    done
+    curpath="${curpath%/*}"
+  done
+  return 1
+}
+
+# Enable bash autocompletion.
+function _fepper_completions() {
+  # The currently-being-completed word.
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  # The current Fepper executable, if it exists.
+  local fepperfile="$(_fepper_fepperfile)"
+  # The current Fepper version, available tasks, options, etc.
+  local fepperinfo="$(fepper --version --verbose 2>/dev/null)"
+  # Options and tasks.
+  local opts="$(echo "$fepperinfo" | awk '/Available options: / {$1=$2=""; print $0}')"
+  local compls="$(echo "$fepperinfo" | awk '/Available tasks: / {$1=$2=""; print $0}')"
+  # Only add -- or - options if the user has started typing -
+  [[ "$cur" == -* ]] && compls="$compls $opts"
+  # Tell complete what stuff to show.
+  COMPREPLY=($(compgen -W "$compls" -- "$cur"))
+}
+
+complete -o default -F _fepper_completions fepper
