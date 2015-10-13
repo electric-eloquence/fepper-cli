@@ -12,7 +12,7 @@
   },
   "license": "MIT",
   "bin": {
-    "fepper": "bin/fepper.js"
+    "fepper": "bin/fp.js"
   },
   "engines": {
     "node": ">= 4.0.0"
