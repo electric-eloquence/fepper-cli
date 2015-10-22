@@ -6,13 +6,9 @@
     "type": "git",
     "url": "https://github.com/electric-eloquence/fepper-cli.git"
   },
-  "dependencies": {
-    "findup-sync": "^0.3.0",
-    "nopt": "^3.0.4"
-  },
   "license": "MIT",
   "bin": {
-    "fp": "bin/fp.js"
+    "fp": "bin/fp.sh"
   },
   "engines": {
     "node": ">= 4.0.0"
