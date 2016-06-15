@@ -29,6 +29,17 @@ if [ "$1" == "" ] || [ "$1" == "default" ]; then
   fi
 fi
 
+# Wrap arguments containing spaces in double-quotes.
+s="[[:space:]]"
+args=""
+for i in "$@"; do
+  if [[ $i =~ $s ]]; then
+    args="$args \"$i\""
+  else
+    args="$args $i"
+  fi
+done
+
 # Run index.js with arguments.
 cd $fepper_dir
-node ${fepper_dir}/index.js $@
+node ${fepper_dir}/index.js $args
