@@ -42,4 +42,4 @@ done
 
 # Run index.js with arguments.
 cd $fepper_dir
-node ${fepper_dir}/index.js $args
+node ${fepper_dir}/app/index.js $args
