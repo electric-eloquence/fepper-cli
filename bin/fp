@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Recursively search up the directory tree.
-function upsearch () {
-  test / == "$PWD" && return || test -e "$1" && echo -n "$PWD" && return || cd .. && upsearch "$1"
+# Recurse up the directory tree to find the parent directory of a given file.
+function findup () {
+  test / == "$PWD" && return || test -e "$1" && echo -n "$PWD" && return || cd .. && findup "$1"
 }
 
-# Upwardly search for the fepper.command file.
-fepper_dir=`upsearch fepper.command`
+# Find the parent directory of the fepper.command file.
+fepper_dir=`findup fepper.command`
 
 # Determine if kill_zombies is set in conf.yml.
 if [ -f ${fepper_dir}/conf.yml ]; then
