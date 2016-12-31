@@ -5,15 +5,53 @@ function findup () {
   test / == "$PWD" && return || test -e "$1" && echo -n "$PWD" && return || cd .. && findup "$1"
 }
 
-# Find the parent directory of the fepper.command file.
-fepper_dir=`findup fepper.command`
+# If within the Fepper NPM excludes dir, find the parent directory of tasker.js.
+if [[ $PWD == *"/fepper/excludes"* ]]; then
+  fepper_dir=`findup tasker.js`
 
-# Determine if kill_zombies is set in conf.yml.
-if [ -f ${fepper_dir}/conf.yml ]; then
-  kill_zombies=`cat ${fepper_dir}/conf.yml | grep 'kill_zombies:[[:space:]]*true'`
+# Else, find the parent directory of fepper.command.
 else
-  kill_zombies=
+  fepper_dir=`findup fepper.command`
 fi
+
+# If fepper_dir not found, make another search for tasker.js.
+if [ "$fepper_dir" == "" ]; then
+  fepper_dir=`findup tasker.js`
+fi
+
+# If fepper_dir still not found, exit.
+if [ "$fepper_dir" == "" ]; then
+  exit 1
+fi
+
+# Read some confs from conf.yml.
+# Set default values.
+app_dir=""
+kill_zombies=""
+
+# Set conf_file location.
+if [ -f ${fepper_dir}/tasker.js ]; then
+  conf_file="${fepper_dir}/excludes/conf.yml"
+else
+  conf_file="${fepper_dir}/conf.yml"
+fi
+
+# Back up IFS
+IFS_DEFAULT=$IFS
+IFS=":"
+while read -r key value
+do
+  if [ "$key" == "app_dir" ]; then
+    app_dir=$value
+  elif [ "$key" == "kill_zombies" ]; then
+    if [[ $value == *"true" ]]; then
+      kill_zombies=$value
+    fi
+  fi
+done < $conf_file
+
+# Revert IFS
+IFS=$IFS_DEFAULT
 
 # Only kill zombies on default task.
 if [ "$1" == "" ] || [ "$1" == "default" ]; then
@@ -40,6 +78,10 @@ for i in "$@"; do
   fi
 done
 
+# Trim app_dir.
+app_dir="${app_dir#"${app_dir%%[![:space:]]*}"}" # remove leading whitespace characters
+app_dir="${app_dir%"${app_dir##*[![:space:]]}"}" # remove trailing whitespace characters
+
 # Run index.js with arguments.
 cd $fepper_dir
-node ${fepper_dir}/app/index.js $args
+node ${fepper_dir}/${app_dir}/index.js $args
