@@ -5,16 +5,10 @@ function findup () {
   test / == "$PWD" && return || test -e "$1" && echo -n "$PWD" && return || cd .. && findup "$1"
 }
 
-# If within the Fepper NPM excludes dir, find the parent directory of tasker.js.
-if [[ $PWD == *"/fepper/excludes"* ]]; then
-  fepper_dir=`findup tasker.js`
+# First, try to find the parent directory of fepper.command.
+fepper_dir=`findup fepper.command`
 
-# Else, find the parent directory of fepper.command.
-else
-  fepper_dir=`findup fepper.command`
-fi
-
-# If fepper_dir not found, make another search for tasker.js.
+# If fepper.command not found, try to find tasker.js.
 if [ "$fepper_dir" == "" ]; then
   fepper_dir=`findup tasker.js`
 fi
