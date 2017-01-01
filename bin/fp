@@ -33,12 +33,20 @@ if [ ! -f ${fepper_dir}/tasker.js ]; then
   IFS=":"
   while read -r key value
   do
+    # Trim whitespace from keys.
+    key="${key#"${key%%[![:space:]]*}"}"
+    key="${key%"${key##*[![:space:]]}"}"
+
+    # Trim trailing inline comments from values.
+    value="${value%%#*}"
+    # Trim whitespace from values.
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+
     if [ "$key" == "app_dir" ]; then
       app_dir=$value
     elif [ "$key" == "kill_zombies" ]; then
-      if [[ $value == *"true" ]]; then
-        kill_zombies=$value
-      fi
+      kill_zombies=$value
     fi
   done < $conf_file
 
@@ -48,7 +56,7 @@ fi
 
 # Only kill zombies on default task.
 if [ "$1" == "" ] || [ "$1" == "default" ]; then
-  if [ "$kill_zombies" != "" ]; then
+  if [ "$kill_zombies" == "true" ]; then
     if pgrep -x gulp > /dev/null; then
       echo Killing lingering gulp process...
       killall gulp
@@ -70,10 +78,6 @@ for i in "$@"; do
     args="$args $i"
   fi
 done
-
-# Trim app_dir.
-app_dir="${app_dir#"${app_dir%%[![:space:]]*}"}" # remove leading whitespace characters
-app_dir="${app_dir%"${app_dir##*[![:space:]]}"}" # remove trailing whitespace characters
 
 # Run index.js with arguments.
 cd $fepper_dir
