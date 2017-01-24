@@ -8,5 +8,3 @@ npm install -g fepper-cli
 ```
 
 See the [Fepper README](https://github.com/electric-eloquence/fepper) for more information.
-
-To read more about npm scripts, please visit the npm docs: [https://npmjs.org/doc/misc/npm-scripts.html](https://npmjs.org/doc/misc/npm-scripts.html).
