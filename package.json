@@ -1,6 +1,6 @@
 {
   "name": "fepper-cli",
-  "description": "The command line interface for the Fepper front end rapid prototyping tool",
+  "description": "The command line interface for the Fepper frontend rapid prototyping tool",
   "version": "0.3.3",
   "repository": {
     "type": "git",
