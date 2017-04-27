@@ -68,11 +68,14 @@ if [ "$1" == "" ] || [ "$1" == "default" ]; then
   fi
 fi
 
-# Wrap arguments containing spaces in double-quotes.
 s="[[:space:]]"
 args=""
 for i in "$@"; do
-  if [[ $i =~ $s ]]; then
+  if [ "$i" == "-v" ]; then
+    # Run version task if "$1" == "-v"
+    args="$args version"
+  elif [[ $i =~ $s ]]; then
+    # Wrap arguments containing spaces in double-quotes.
     args="$args \"$i\""
   else
     args="$args $i"
