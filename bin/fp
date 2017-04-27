@@ -71,8 +71,11 @@ fi
 s="[[:space:]]"
 args=""
 for i in "$@"; do
-  if [ "$i" == "-v" ]; then
-    # Run version task if "$1" == "-v"
+  if [ "$i" == "--help" ]; then
+    # Run task help if "$1" == "--help"
+    args="$args help"
+  elif [ "$i" == "-v" ]; then
+    # Run task if "$1" == "-v"
     args="$args version"
   elif [[ $i =~ $s ]]; then
     # Wrap arguments containing spaces in double-quotes.
