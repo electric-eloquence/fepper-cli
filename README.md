@@ -1,4 +1,4 @@
-# Command line interface for the Fepper frontend rapid prototyping tool.
+# Command line interface for the Fepper frontend rapid prototyping tool
 
 Use this to run all tasks associated with [Fepper](https://github.com/electric-eloquence/fepper).
 
