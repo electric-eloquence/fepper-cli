@@ -71,7 +71,7 @@ fi
 s="[[:space:]]"
 args=""
 for i in "$@"; do
-  if [ "$i" == "--help" ]; then
+  if [ "$i" == "--help" ] || [ "$i" == "-h" ]; then
     # Run task help if "$1" == "--help"
     args="$args help"
   elif [ "$i" == "--version" ] || [ "$i" == "-v" ]; then
