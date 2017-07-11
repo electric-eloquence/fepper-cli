@@ -74,7 +74,7 @@ for i in "$@"; do
   if [ "$i" == "--help" ]; then
     # Run task help if "$1" == "--help"
     args="$args help"
-  elif [ "$i" == "-v" ]; then
+  elif [ "$i" == "--version" ] || [ "$i" == "-v" ]; then
     # Run task if "$1" == "-v"
     args="$args version"
   elif [[ $i =~ $s ]]; then
