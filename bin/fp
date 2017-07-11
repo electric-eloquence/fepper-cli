@@ -72,10 +72,10 @@ s="[[:space:]]"
 args=""
 for i in "$@"; do
   if [ "$i" == "--help" ] || [ "$i" == "-h" ]; then
-    # Run task help if "$1" == "--help"
+    # Run task `help` if "$1" == "--help" or "-h"
     args="$args help"
   elif [ "$i" == "--version" ] || [ "$i" == "-v" ]; then
-    # Run task if "$1" == "-v"
+    # Run task `version` if "$1" == "--version" or "-v"
     args="$args version"
   elif [[ $i =~ $s ]]; then
     # Wrap arguments containing spaces in double-quotes.
