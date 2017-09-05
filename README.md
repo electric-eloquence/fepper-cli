@@ -12,6 +12,3 @@ npm install -g fepper-cli
 
 See the [Fepper README](https://github.com/electric-eloquence/fepper) for more 
 information.
-
-Please report any bugs and submit contributions at 
-https://github.com/electric-eloquence/fepper-cli
