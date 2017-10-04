@@ -22,6 +22,7 @@ fi
 # Set default values.
 app_dir="."
 conf_file=""
+headed="" # The "headed" conf is for Fepper development only. Necessary when requiring fepper-npm with `npm link`.
 kill_zombies=""
 
 # Set conf_file location.
@@ -33,18 +34,22 @@ if [ ! -f ${fepper_dir}/tasker.js ]; then
   IFS=":"
   while read -r key value
   do
+
     # Trim whitespace from keys.
     key="${key#"${key%%[![:space:]]*}"}"
     key="${key%"${key##*[![:space:]]}"}"
 
     # Trim trailing inline comments from values.
     value="${value%%#*}"
+
     # Trim whitespace from values.
     value="${value#"${value%%[![:space:]]*}"}"
     value="${value%"${value##*[![:space:]]}"}"
 
     if [ "$key" == "app_dir" ]; then
       app_dir=$value
+    elif [ "$key" == "headed" ]; then
+      headed=$value
     elif [ "$key" == "kill_zombies" ]; then
       kill_zombies=$value
     fi
@@ -70,6 +75,7 @@ fi
 
 s="[[:space:]]"
 args=""
+
 for i in "$@"; do
   if [ "$i" == "--help" ] || [ "$i" == "-h" ]; then
     # Run task `help` if "$1" == "--help" or "-h"
@@ -84,6 +90,10 @@ for i in "$@"; do
     args="$args $i"
   fi
 done
+
+if [ "$headed" == "true" ]; then
+  args="$args headed"
+fi
 
 # Run index.js with arguments.
 cd $fepper_dir
