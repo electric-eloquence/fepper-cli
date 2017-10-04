@@ -2,7 +2,8 @@
 
 # Recurse up the directory tree to find the parent directory of a given file.
 function findup () {
-  test / == "$PWD" && return || test -e "$1" && echo -n "$PWD" && return || cd .. && findup "$1"
+  PWDP=`pwd -P`
+  test / == "$PWDP" && return || test -e "$1" && echo -n "$PWDP" && return || cd .. && findup "$1"
 }
 
 # First, try to find the parent directory of fepper.command.
