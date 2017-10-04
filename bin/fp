@@ -92,7 +92,7 @@ for i in "$@"; do
 done
 
 if [ "$headed" == "true" ]; then
-  args="$args headed"
+  args="$args headed $fepper_dir"
 fi
 
 # Run index.js with arguments.
