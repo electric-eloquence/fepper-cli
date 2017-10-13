@@ -10,9 +10,6 @@
   "bin": {
     "fp": "bin/fp"
   },
-  "engines": {
-    "node": ">= 8.5.0"
-  },
   "keywords": [
     "atomic",
     "component",
