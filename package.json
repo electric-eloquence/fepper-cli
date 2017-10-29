@@ -4,7 +4,7 @@
   "description": "The command line interface for the Fepper frontend rapid prototyping tool",
   "repository": {
     "type": "git",
-    "url": "https://github.com/electric-eloquence/fepper-cli.git"
+    "url": "git+https://github.com/electric-eloquence/fepper-cli.git"
   },
   "keywords": [
     "atomic",
@@ -24,6 +24,10 @@
     "template"
   ],
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/electric-eloquence/fepper-cli/issues"
+  },
+  "homepage": "https://github.com/electric-eloquence/fepper-cli#readme",
   "bin": {
     "fp": "bin/fp"
   }
