@@ -7,15 +7,15 @@ function findup () {
 }
 
 # First, try to find the parent directory of fepper.command.
-fepper_dir=`findup fepper.command`
+root_dir=`findup fepper.command`
 
 # If fepper.command not found, try to find tasker.js.
-if [ "$fepper_dir" == "" ]; then
-  fepper_dir=`findup tasker.js`
+if [ "$root_dir" == "" ]; then
+  root_dir=`findup tasker.js`
 fi
 
-# If fepper_dir still not found, exit.
-if [ "$fepper_dir" == "" ]; then
+# If root_dir still not found, exit.
+if [ "$root_dir" == "" ]; then
   exit 1
 fi
 
@@ -27,8 +27,8 @@ headed="" # The "headed" conf is for Fepper development only. Necessary when req
 kill_zombies=""
 
 # Set conf_file location.
-if [ ! -f ${fepper_dir}/tasker.js ]; then
-  conf_file="${fepper_dir}/conf.yml"
+if [ ! -f ${root_dir}/tasker.js ]; then
+  conf_file="${root_dir}/conf.yml"
 
   # Back up IFS
   IFS_DEFAULT=$IFS
@@ -93,9 +93,9 @@ for i in "$@"; do
 done
 
 if [ "$headed" == "true" ]; then
-  args="$args headed $fepper_dir"
+  args="$args headed $root_dir"
 fi
 
 # Run index.js with arguments.
-cd $fepper_dir
-node ${fepper_dir}/${app_dir}/index.js $args
+cd $root_dir
+node ${root_dir}/${app_dir}/index.js $args
