@@ -22,9 +22,8 @@ fi
 
 # Read some confs from conf.yml.
 # Set default values.
-app_dir="."
+app_dir="node_modules/fepper"
 conf_file=""
-headed="" # The "headed" conf is for Fepper development only. Necessary when requiring fepper-npm with `npm link`.
 kill_zombies=""
 
 # Set conf_file location.
@@ -50,8 +49,6 @@ if [ ! -f ${root_dir}/tasker.js ]; then
 
     if [ "$key" == "app_dir" ]; then
       app_dir=$value
-    elif [ "$key" == "headed" ]; then
-      headed=$value
     elif [ "$key" == "kill_zombies" ]; then
       kill_zombies=$value
     fi
@@ -93,9 +90,7 @@ for i in "$@"; do
   fi
 done
 
-if [ "$headed" == "true" ]; then
-  args="$args headed $root_dir"
-fi
+args="$args --root_dir=$root_dir"
 
 # Run index.js with arguments.
 cd $root_dir
