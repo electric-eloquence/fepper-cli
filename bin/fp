@@ -16,7 +16,7 @@ fi
 
 # If root_dir still not found, exit.
 if [ "$root_dir" == "" ]; then
-  echo It appears you are trying to run fp outside Fepper! Exiting!
+  echo It appears you are trying to run fp outside a working Fepper directory! Exiting!
   exit 1
 fi
 
@@ -90,8 +90,6 @@ for i in "$@"; do
   fi
 done
 
-args="$args --root_dir=$root_dir"
-
 # Run index.js with arguments.
 cd $root_dir
-node ${root_dir}/${app_dir}/index.js $args
+ROOT_DIR=${root_dir} node ${root_dir}/${app_dir}/index.js $args
