@@ -9,11 +9,6 @@ function findup () {
 # First, try to find the parent directory of fepper.command.
 root_dir=`findup fepper.command`
 
-# If fepper.command not found, try to find tasker.js.
-if [ "$root_dir" == "" ]; then
-  root_dir=`findup tasker.js`
-fi
-
 # If root_dir still not found, exit.
 if [ "$root_dir" == "" ]; then
   echo It appears you are trying to run fp outside a working Fepper directory! Exiting!
