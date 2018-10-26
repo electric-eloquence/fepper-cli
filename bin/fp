@@ -87,4 +87,5 @@ done
 
 # Run index.js with arguments.
 cd $root_dir
-ROOT_DIR=${root_dir} node ${root_dir}/${app_dir}/index.js $args
+# The "HEADED" process.env var is deprecated. Will be removed.
+HEADED=true ROOT_DIR=${root_dir} node ${root_dir}/${app_dir}/index.js $args
