@@ -1,91 +1,186 @@
-#!/bin/bash
+#!/usr/bin/env node
+'use strict';
 
-# Recurse up the directory tree to find the parent directory of a given file.
-function findup () {
-  PWDP=`pwd -P`
-  test / == "$PWDP" && return || test -e "$1" && echo -n "$PWDP" && return || cd .. && findup "$1"
+const cp = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const enc = 'utf8';
+
+// Recurse up the directory tree to find the parent directory of a given file.
+function findup(filename, workDir) {
+  const workDirFiles = fs.readdirSync(workDir);
+
+  if (workDirFiles.indexOf(filename) > -1) {
+    return workDir;
+  }
+
+  // Need to work with the operating system's path separators, so use Node path methods.
+  const workDirUp = path.normalize(path.join(workDir, '..'));
+  const workDirUpFiles = fs.readdirSync(workDirUp);
+  let dirMatch = '';
+
+  // Return the found directory if filename has been found.
+  if (workDirUpFiles.indexOf(filename) > -1) {
+    return workDirUp;
+  }
+  // Return empty string if reached end-of-the-line.
+  else if (
+    workDirUp === '/' ||
+    /^[A-Z]:\\$/.test(workDirUp) ||
+    workDirUp.slice(0, 2) === '\\\\'
+  ) {
+    return '';
+  }
+  // Otherwise, keep trying.
+  else {
+    dirMatch = findup(filename, workDirUp);
+  }
+
+  return dirMatch;
 }
 
-# First, try to find the parent directory of fepper.command.
-root_dir=`findup fepper.command`
+const cwd = process.cwd();
+const isWindows = (process.env.ComSpec && process.env.ComSpec.toLowerCase() === 'c:\\windows\\system32\\cmd.exe');
 
-# If root_dir still not found, exit.
-if [ "$root_dir" == "" ]; then
-  echo It appears you are trying to run fp outside a working Fepper directory! Exiting!
-  exit 1
-fi
+// Invoke findup to retrieve the parent directory of fepper.command.
+let rootDir = findup('fepper.command', cwd);
 
-# Read some confs from conf.yml.
-# Set default values.
-app_dir="node_modules/fepper"
-conf_file=""
-kill_zombies=""
+// None of these fepper scripts should be deleted, but just in case any are, offer a few more tries.
+if (!rootDir) {
+  rootDir = findup('fepper.ps1', cwd);
+}
 
-# Set conf_file location.
-if [ ! -f ${root_dir}/tasker.js ]; then
-  conf_file="${root_dir}/conf.yml"
+if (!rootDir) {
+  rootDir = findup('fepper.vbs', cwd);
+}
 
-  # Back up IFS
-  IFS_DEFAULT=$IFS
-  IFS=":"
-  while read -r key value
-  do
+// Finally, if rootDir not found, console error and exit.
+if (!rootDir) {
+  // eslint-disable-next-line no-console
+  console.error('It appears you are trying to run fp outside a working Fepper directory! Exiting!');
 
-    # Trim whitespace from keys.
-    key="${key#"${key%%[![:space:]]*}"}"
-    key="${key%"${key##*[![:space:]]}"}"
+  return;
+}
 
-    # Trim trailing inline comments from values.
-    value="${value%%#*}"
+process.chdir(rootDir);
 
-    # Trim whitespace from values.
-    value="${value#"${value%%[![:space:]]*}"}"
-    value="${value%"${value##*[![:space:]]}"}"
+// Set some defaults.
+let appDir = 'node_modules/fepper';
+let killZombies = false;
 
-    if [ "$key" == "app_dir" ]; then
-      app_dir=$value
-    elif [ "$key" == "kill_zombies" ]; then
-      kill_zombies=$value
-    fi
-  done < $conf_file
+// Read conf file.
+const confFile = `${rootDir}/conf.yml`;
+const confData = fs.readFileSync(confFile, enc).split('\n');
 
-  # Revert IFS
-  IFS=$IFS_DEFAULT
-fi
+for (let confDatum of confData) {
+  const confKeyVal = confDatum.split(':');
 
-# Only kill zombies on default task.
-if [ "$1" == "" ] || [ "$1" == "default" ]; then
-  if [ "$kill_zombies" == "true" ]; then
-    if pgrep -x gulp > /dev/null; then
-      echo Killing lingering gulp process...
-      killall gulp
-    fi
-    if pgrep -x node > /dev/null; then
-      echo Killing lingering node process...
-      killall node
-    fi
-  fi
-fi
+  if (!confKeyVal[1]) {
+    continue;
+  }
 
-s="[[:space:]]"
-args=""
+  // Trim whitespace from keys.
+  const confKey = confKeyVal[0].trim();
 
-for i in "$@"; do
-  if [ "$i" == "--help" ] || [ "$i" == "-h" ]; then
-    # Run task `help` if "$1" == "--help" or "-h"
-    args="$args help"
-  elif [ "$i" == "--version" ] || [ "$i" == "-v" ]; then
-    # Run task `version` if "$1" == "--version" or "-v"
-    args="$args version"
-  elif [[ $i =~ $s ]]; then
-    # Wrap arguments containing spaces in double-quotes.
-    args="$args \"$i\""
-  else
-    args="$args $i"
-  fi
-done
+  // Trim trailing inline comments from values.
+  let confVal = confKeyVal[1];
+  confVal = confVal.replace(/#.*/, '');
+  // Trim whitespace from values.
+  confVal = confVal.trim();
 
-# Run index.js with arguments.
-cd $root_dir
-# The "HEADED" process.env var is deprecated. Will be removed.
-HEADED=true ROOT_DIR=${root_dir} node ${root_dir}/${app_dir}/index.js $args
+  switch (confKey) {
+    case 'app_dir':
+      appDir = confVal;
+
+      break;
+
+    case 'kill_zombies':
+      killZombies = (confVal === 'true');
+
+      break;
+  }
+}
+
+if (isWindows) {
+  // Use backslashes in Windows paths.
+  appDir = appDir.replace(/\//g, '\\');
+  // Killing zombies is only for BASH-like shells, not Windows.
+  killZombies = false;
+}
+
+// Only kill zombies on default and restart tasks.
+// Since no arg after element 1 means the default task, we only need to check when process.argv.length > 2.
+if (process.argv.length > 2) {
+  let i;
+
+  for (i = 0; i < process.argv.length; i++) {
+    if (process.argv[i] === 'default' || process.argv[i] === 'restart') {
+      break;
+    }
+  }
+
+  // If the previous loop was not broken by discovery of a "default" or "restart" arg, do not kill zombies.
+  if (i === process.argv.length) {
+    killZombies = false;
+  }
+}
+
+if (killZombies) {
+  const spawnObj = cp.spawnSync('pgrep', ['-x', 'gulp']);
+  const gulpPids = spawnObj.stdout.toString(enc).trim().split('\n');
+
+  for (let gulpPid of gulpPids) {
+    cp.spawnSync('kill', [gulpPid], {stdio: 'inherit'});
+    // eslint-disable-next-line no-console
+    console.log(`Killing gulp process ${gulpPid}.`);
+  }
+}
+
+const argv = ['--gulpfile', path.resolve(rootDir, appDir, 'tasker.js')];
+
+// Set up array of args for submission to Gulp.
+if (process.argv.length < 3) {
+  argv[2] = 'default';
+}
+else {
+  for (let i = 2; i < process.argv.length; i++) {
+    argv[i] = process.argv[i];
+  }
+}
+
+const indexOfD = argv.indexOf('-d');
+const indexOfDebug = argv.indexOf('--debug');
+
+if (indexOfD > -1 || indexOfDebug > -1) {
+  process.env.DEBUG = true;
+
+  if (indexOfD > -1) {
+    argv.splice(indexOfD, 1);
+  }
+  else if (indexOfDebug > -1) {
+    argv.splice(indexOfDebug, 1);
+  }
+}
+
+// The "HEADED" process.env var is deprecated. It will be removed.
+if (!process.env.HEADED) {
+  process.env.HEADED = true;
+}
+
+if (!process.env.ROOT_DIR) {
+  process.env.ROOT_DIR = rootDir;
+}
+
+process.env.NODE_PATH = path.resolve(process.env.ROOT_DIR, 'node_modules');
+
+const binPath = path.resolve('node_modules', '.bin');
+let binGulp = path.resolve(binPath, 'gulp');
+
+// Spawn gulp.cmd if Windows and not BASH.
+if (isWindows) {
+  binGulp = path.resolve(binPath, 'gulp.cmd');
+}
+
+// Spawn gulp task with arguments.
+cp.spawn(binGulp, argv, {stdio: 'inherit', env: process.env});
