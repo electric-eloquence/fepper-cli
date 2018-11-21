@@ -131,6 +131,10 @@ if (killZombies) {
   const gulpPids = spawnObj.stdout.toString(enc).trim().split('\n');
 
   for (let gulpPid of gulpPids) {
+    if (!/^\d+$/.test(gulpPid)) {
+      continue;
+    }
+
     cp.spawnSync('kill', [gulpPid], {stdio: 'inherit'});
     // eslint-disable-next-line no-console
     console.log(`Killing gulp process ${gulpPid}.`);
