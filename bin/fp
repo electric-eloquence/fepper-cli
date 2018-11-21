@@ -70,7 +70,7 @@ let appDir = 'node_modules/fepper';
 let killZombies = false;
 
 // Read conf file.
-const confFile = `${rootDir}/conf.yml`;
+const confFile = path.resolve(rootDir, 'conf.yml');
 const confData = fs.readFileSync(confFile, enc).split('\n');
 
 for (let confDatum of confData) {
