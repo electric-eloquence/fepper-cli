@@ -115,12 +115,16 @@ if (process.argv.length > 2) {
   let i;
 
   for (i = 0; i < process.argv.length; i++) {
-    if (process.argv[i] === 'default' || process.argv[i] === 'restart') {
+    if (
+      process.argv[i] === 'default' ||
+      process.argv[i] === 'restart' ||
+      process.argv[i] === 'update'
+    ) {
       break;
     }
   }
 
-  // If the previous loop was not broken by discovery of a "default" or "restart" arg, do not kill zombies.
+  // If the previous loop was not broken by discovery of a zombie-killing task, do not kill zombies.
   if (i === process.argv.length) {
     killZombies = false;
   }
