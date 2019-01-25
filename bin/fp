@@ -102,22 +102,16 @@ for (let confDatum of confData) {
 }
 
 if (isWindows) {
-  // path.resolve() should replace forward slashes with backslashes in Windows.
-  // But do this just in case.
+  // path.resolve() should replace forward slashes with backslashes in Windows, but do this just in case.
   appDir = appDir.replace(/\//g, '\\');
 }
 
 process.env.APP_DIR = appDir;
 const argv = [path.join(appDir, 'index.js')];
 
-// Set up array of args for submission to Gulp.
-if (process.argv.length < 3) {
-  argv[1] = 'default';
-}
-else {
-  for (let i = 2; i < process.argv.length; i++) {
-    argv[i - 1] = process.argv[i];
-  }
+// Set up array of args for submission to fepper index.js.
+for (let i = 2; i < process.argv.length; i++) {
+  argv[i - 1] = process.argv[i];
 }
 
 // process.env.HEADED is deprecated. Remove this `if` block when distro versions <0.9.0 are ancient.
