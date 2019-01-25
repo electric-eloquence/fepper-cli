@@ -102,7 +102,8 @@ for (let confDatum of confData) {
 }
 
 if (isWindows) {
-  // Use backslashes in Windows paths.
+  // path.resolve() should replace forward slashes with backslashes in Windows.
+  // But do this just in case.
   appDir = appDir.replace(/\//g, '\\');
 }
 
