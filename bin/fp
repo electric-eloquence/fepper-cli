@@ -63,11 +63,15 @@ if (!rootDir) {
   return;
 }
 
+if (!process.env.ROOT_DIR) {
+  process.env.ROOT_DIR = rootDir;
+}
+
 process.chdir(rootDir);
 
 // Set some defaults.
-let appDir = 'node_modules/fepper';
-let killZombies = false;
+process.env.NODE_PATH = path.resolve(process.env.ROOT_DIR, 'node_modules');
+let appDir = path.resolve(process.env.NODE_PATH, 'fepper');
 
 // Read conf file.
 const confFile = path.resolve(rootDir, 'conf.yml');
@@ -94,66 +98,24 @@ for (let confDatum of confData) {
       appDir = confVal;
 
       break;
-
-    case 'kill_zombies':
-      killZombies = (confVal === 'true');
-
-      break;
   }
 }
 
 if (isWindows) {
   // Use backslashes in Windows paths.
-  appDir = appDir.replace(/\//g, '\\');
-  // Killing zombies is only for BASH-like shells, not Windows.
-  killZombies = false;
+  appDir = path.resolve(appDir.replace(/\//g, '\\'));
 }
 
-// Only kill zombies on default and restart tasks.
-// Since no arg after element 1 means the default task, we only need to check when process.argv.length > 2.
-if (process.argv.length > 2) {
-  let i;
-
-  for (i = 0; i < process.argv.length; i++) {
-    if (
-      process.argv[i] === 'default' ||
-      process.argv[i] === 'restart' ||
-      process.argv[i] === 'update'
-    ) {
-      break;
-    }
-  }
-
-  // If the previous loop was not broken by discovery of a zombie-killing task, do not kill zombies.
-  if (i === process.argv.length) {
-    killZombies = false;
-  }
-}
-
-if (killZombies) {
-  const spawnObj = cp.spawnSync('pgrep', ['-x', 'gulp']);
-  const gulpPids = spawnObj.stdout.toString(enc).trim().split('\n');
-
-  for (let gulpPid of gulpPids) {
-    if (!/^\d+$/.test(gulpPid)) {
-      continue;
-    }
-
-    cp.spawnSync('kill', [gulpPid], {stdio: 'inherit'});
-    // eslint-disable-next-line no-console
-    console.log(`Killing gulp process ${gulpPid}.`);
-  }
-}
-
-const argv = ['--gulpfile', path.resolve(rootDir, appDir, 'tasker.js')];
+process.env.APP_DIR = appDir;
+const argv = [path.join(appDir, 'index.js')];
 
 // Set up array of args for submission to Gulp.
 if (process.argv.length < 3) {
-  argv[2] = 'default';
+  argv[1] = 'default';
 }
 else {
   for (let i = 2; i < process.argv.length; i++) {
-    argv[i] = process.argv[i];
+    argv[i - 1] = process.argv[i];
   }
 }
 
@@ -171,24 +133,11 @@ if (indexOfD > -1 || indexOfDebug > -1) {
   }
 }
 
-// The "HEADED" process.env var is deprecated. It will be removed.
+// process.env.HEADED is deprecated. Remove this `if` block when distro versions <0.9.0 are ancient.
+// In the meantime, this is such little overhead that there is no harm leaving it in.
 if (!process.env.HEADED) {
   process.env.HEADED = true;
 }
 
-if (!process.env.ROOT_DIR) {
-  process.env.ROOT_DIR = rootDir;
-}
-
-process.env.NODE_PATH = path.resolve(process.env.ROOT_DIR, 'node_modules');
-
-const binPath = path.resolve('node_modules', '.bin');
-let binGulp = path.resolve(binPath, 'gulp');
-
-// Spawn gulp.cmd if Windows and not BASH.
-if (isWindows) {
-  binGulp = path.resolve(binPath, 'gulp.cmd');
-}
-
-// Spawn gulp task with arguments.
-cp.spawn(binGulp, argv, {stdio: 'inherit', env: process.env});
+// Spawn fepper index.js with arguments.
+cp.spawn('node', argv, {stdio: 'inherit', env: process.env});
