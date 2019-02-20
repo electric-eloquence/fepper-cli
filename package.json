@@ -40,7 +40,7 @@
     "fp": "bin/fp"
   },
   "devDependencies": {
-    "eslint": "3.x",
+    "eslint": "5.x",
     "husky": "1.x"
   }
 }
