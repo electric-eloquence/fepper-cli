@@ -5,7 +5,7 @@ Use this to run all tasks associated with [Fepper](https://github.com/electric-e
 ### Install
 
 Install this globally and you'll have access to the `fp` command anywhere 
-within your [Fepper](https://github.com/electric-eloquence/fepper) instance. 
+within your [Fepper](https://github.com/electric-eloquence/fepper) project.
 
 ```shell
 npm install -g fepper-cli
