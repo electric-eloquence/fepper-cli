@@ -100,11 +100,6 @@ for (let confDatum of confData) {
   }
 }
 
-if (isWindows) {
-  // path.resolve() should replace forward slashes with backslashes in Windows, but do this just in case.
-  appDir = appDir.replace(/\//g, '\\');
-}
-
 process.env.APP_DIR = appDir;
 
 // process.env.HEADED is deprecated. Remove this `if` block when distro versions <0.9.0 are ancient.
