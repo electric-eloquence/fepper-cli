@@ -40,7 +40,6 @@ function findup(filename, workDir) {
 }
 
 const cwd = process.cwd();
-const isWindows = (process.env.ComSpec && process.env.ComSpec.toLowerCase() === 'c:\\windows\\system32\\cmd.exe');
 
 // Invoke findup to retrieve the parent directory of fepper.command.
 let rootDir = findup('fepper.command', cwd);
