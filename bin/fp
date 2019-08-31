@@ -101,10 +101,4 @@ for (let confDatum of confData) {
 
 process.env.APP_DIR = appDir;
 
-// process.env.HEADED is deprecated. Remove this `if` block when distro versions <0.9.0 are ancient.
-// In the meantime, this is such little overhead that there is no harm leaving it in.
-if (!process.env.HEADED) {
-  process.env.HEADED = true;
-}
-
 require(path.join(appDir, 'index.js'));
