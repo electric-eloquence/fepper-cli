@@ -75,7 +75,7 @@ let appDir = path.join(process.env.NODE_PATH, 'fepper');
 const confFile = path.join(rootDir, 'conf.yml');
 const confData = fs.readFileSync(confFile, enc).split('\n');
 
-for (let confDatum of confData) {
+for (const confDatum of confData) {
   const confKeyVal = confDatum.split(':');
 
   if (!confKeyVal[1]) {
